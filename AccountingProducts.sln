@@ -12,10 +12,19 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountingProducts.Domain", "AccountingProducts.Domain\AccountingProducts.Domain.csproj", "{A2C561A7-5DE1-45AF-B416-40A658C7ACE7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountingProducts.Application", "AccountingProducts.Application\AccountingProducts.Application.csproj", "{AC44D257-FAD2-4195-B21C-49A069F360F7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A2C561A7-5DE1-45AF-B416-40A658C7ACE7} = {A2C561A7-5DE1-45AF-B416-40A658C7ACE7}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountingProducts.Infrastructure", "AccountingProducts.Infrastructure\AccountingProducts.Infrastructure.csproj", "{0B1A475B-2F9E-473E-B64F-EDD00BFC7D3D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AC44D257-FAD2-4195-B21C-49A069F360F7} = {AC44D257-FAD2-4195-B21C-49A069F360F7}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountingProducts.WEB", "AccountingProducts.WEB\AccountingProducts.WEB.csproj", "{069B5DCC-A1AA-4C35-ACAB-9813E59F2E7E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0B1A475B-2F9E-473E-B64F-EDD00BFC7D3D} = {0B1A475B-2F9E-473E-B64F-EDD00BFC7D3D}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
