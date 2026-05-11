@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AccountingProducts.Application.Common.Interfaces.Repositories;
+using AccountingProducts.Domain.Models;
+using AccountingProducts.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,6 +15,12 @@ public static class DependencyInjection
             options.UseNpgsql(
                 configuration.GetConnectionString("DefaultConnection"),
                 b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
+
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IManufacturerRepository, ManufacturerRepository>();
+        services.AddScoped<IShopRepository, ShopRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IPriceRepository, PriceRepository>();
 
         return services;
     }
