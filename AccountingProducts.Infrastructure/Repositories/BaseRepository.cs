@@ -33,6 +33,11 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
         return _dbSet.ToList();
     }
 
+    public T GetById(Guid id)
+    {
+        return _dbSet.Find(id);
+    }
+
     public bool Save()
     {
         return _appDbContext.SaveChanges() > 0;
