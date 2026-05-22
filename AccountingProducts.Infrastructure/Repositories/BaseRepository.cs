@@ -14,36 +14,36 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
         _dbSet = appDbContext.Set<T>();
     }
 
-    public T Create(T entity)
+    public virtual T Create(T entity)
     {
         _dbSet.Add(entity);
         Save();
         return entity;
     }
 
-    public bool Delete(Guid id)
+    public virtual bool Delete(Guid id)
     {
         var entity = _dbSet.Find(id);
         _dbSet.Remove(entity);
         return Save();
     }
 
-    public IEnumerable<T> GetAll()
+    public virtual IEnumerable<T> GetAll()
     {
         return _dbSet.ToList();
     }
 
-    public T GetById(Guid id)
+    public virtual T GetById(Guid id)
     {
         return _dbSet.Find(id);
     }
 
-    public bool Save()
+    public virtual bool Save()
     {
         return _appDbContext.SaveChanges() > 0;
     }
 
-    public T Update(T entity)
+    public virtual T Update(T entity)
     {
         _dbSet.Update(entity);
         Save();
