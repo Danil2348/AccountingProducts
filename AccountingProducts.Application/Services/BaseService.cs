@@ -5,22 +5,27 @@ namespace AccountingProducts.Application.Services;
 
 public abstract class BaseService<T>(IBaseRepository<T> repository) : IBaseService<T> where T : class
 {
-    public T Create(T entity)
+    public virtual T Create(T entity)
     {
         return repository.Create(entity);
     }
 
-    public bool Delete(Guid id)
+    public virtual bool Delete(Guid id)
     {
         return repository.Delete(id);
     }
 
-    public IEnumerable<T> GetAll()
+    public virtual IEnumerable<T> GetAll()
     {
         return repository.GetAll();
     }
 
-    public T Update(T entity)
+    public virtual T GetById(Guid id)
+    {
+        return repository.GetById(id);
+    }
+
+    public virtual T Update(T entity)
     {
         return repository.Update(entity);
     }
