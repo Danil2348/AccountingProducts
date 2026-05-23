@@ -1,8 +1,7 @@
 ﻿namespace AccountingProducts.Domain.Models;
 
-public class Price
+public class Price : Base
 {
-    public Guid Id { get; set; }
     public decimal OldPrice { get; set; }    
     public decimal CurrentPrice { get; set; }     
     public Guid ProductId { get; set; }
