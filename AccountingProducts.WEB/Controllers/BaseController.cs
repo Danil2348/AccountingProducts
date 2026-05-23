@@ -1,33 +1,43 @@
 ﻿using AccountingProducts.Application.Common.Interfaces.Services;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountingProducts.WEB.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public abstract class BaseController<T>(IBaseService<T> service) : ControllerBase where T : class
+public abstract class BaseController<TEntity, TDto>(IBaseService<TEntity> service, IMapper mapper) : ControllerBase
+    where TEntity : class
+    where TDto : class
 {
     [HttpGet]
-    public IActionResult GetAll()
+    public virtual IActionResult GetAll()
     {
-        return Ok(service.GetAll());
+        var entities = service.GetAll();
+        var entitiesDto = mapper.Map<List<TDto>>(entities);
+        return Ok(entitiesDto);
     }
 
-    [HttpDelete("{id}")]
-    public IActionResult Delete(Guid id)
+    [HttpDelete("delete/{id}")]
+    public virtual IActionResult Delete(Guid id)
     {
         return Ok(service.Delete(id));
     }
 
     [HttpPost("create")]
-    public IActionResult Create([FromBody] T entity)
+    public virtual IActionResult Create([FromBody] TDto entityDto)
     {
-        return Ok(service.Create(entity));
+        var entity = mapper.Map<TEntity>(entityDto);
+        mapper.Map(entityDto, service.Create(entity));
+        return Ok(entityDto);
     }
 
-    [HttpPost("update")]
-    public IActionResult Update([FromBody] T entity)
+    [HttpPut("update")]
+    public virtual IActionResult Update(Guid id, [FromBody] TDto entityDto)
     {
-        return Ok(service.Create(entity));
+        var entity = service.GetById(id);
+        mapper.Map(entityDto, entity);
+        mapper.Map(service.Update(entity), entityDto);
+        return Ok(entityDto);
     }
 }
