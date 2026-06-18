@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountingProducts.WEB", "A
 		{0B1A475B-2F9E-473E-B64F-EDD00BFC7D3D} = {0B1A475B-2F9E-473E-B64F-EDD00BFC7D3D}
 	EndProjectSection
 EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "accountingproducts.react", "AccountingProducts.React\accountingproducts.react.esproj", "{CC42858C-F036-7AAC-A1D1-6C1EFDD96FAD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,12 @@ Global
 		{069B5DCC-A1AA-4C35-ACAB-9813E59F2E7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{069B5DCC-A1AA-4C35-ACAB-9813E59F2E7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{069B5DCC-A1AA-4C35-ACAB-9813E59F2E7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC42858C-F036-7AAC-A1D1-6C1EFDD96FAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC42858C-F036-7AAC-A1D1-6C1EFDD96FAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC42858C-F036-7AAC-A1D1-6C1EFDD96FAD}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{CC42858C-F036-7AAC-A1D1-6C1EFDD96FAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC42858C-F036-7AAC-A1D1-6C1EFDD96FAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC42858C-F036-7AAC-A1D1-6C1EFDD96FAD}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -57,6 +65,7 @@ Global
 		{AC44D257-FAD2-4195-B21C-49A069F360F7} = {36D591C7-65C7-A0D1-1CBC-10CDE441BDC8}
 		{0B1A475B-2F9E-473E-B64F-EDD00BFC7D3D} = {E71EDAEB-5A10-4BF4-9763-EC8785550FDB}
 		{069B5DCC-A1AA-4C35-ACAB-9813E59F2E7E} = {11968450-BEB1-4D09-BAF7-29E00DA2241E}
+		{CC42858C-F036-7AAC-A1D1-6C1EFDD96FAD} = {11968450-BEB1-4D09-BAF7-29E00DA2241E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {97FEA6ED-6DC0-4A1C-91C8-FE3182742961}

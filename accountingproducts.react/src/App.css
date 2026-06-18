@@ -1,0 +1,289 @@
+/* src/App.css */
+
+/* Подключаем хороший шрифт */
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
+
+/* Сброс стилей и запрет прокрутки страницы */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f5f0eb;
+    background-image: radial-gradient(circle, #d5dce6 2px, transparent 2px);
+    background-size: 30px 30px;
+}
+
+/* Основной контейнер - занимает всю высоту экрана */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    box-sizing: border-box;
+    overflow: hidden;
+    background: transparent;
+}
+
+/* Заголовок страницы - по центру */
+.page-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #1a1a2e;
+    word-break: break-word;
+    flex-shrink: 0;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #2d3748 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+}
+
+/* Контейнер меню */
+.menu-container {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    background: #ffffff;
+    border-radius: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    border: 1px solid #eef2f6;
+}
+
+/* Кнопки меню */
+.menu-button {
+    padding: 10px 24px;
+    font-size: 19px;
+    font-weight: 500;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.25s ease;
+    color: #2d3748;
+    position: relative;
+}
+
+    .menu-button:hover {
+        background-color: rgba(79, 70, 229, 0.1);
+        transform: translateY(-2px);
+        color: #1a202c;
+    }
+
+    .menu-button.active {
+        background-color: #4f46e5;
+        color: white;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+        .menu-button.active:hover {
+            background-color: #4338ca;
+            transform: translateY(-2px);
+        }
+
+/* Обёртка для таблицы */
+.table-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    border: 1px solid #eef2f6;
+}
+
+/* Плашка действий */
+.actions-bar {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 16px 20px;
+    background: #f9f9f9;
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+    gap: 12px;
+}
+
+/* Кнопки действий */
+.action-button {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #334155;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+}
+
+    .action-button:hover {
+        background-color: #f1f5f9;
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+    }
+
+    /* Кнопка создания (акцентная, увеличенная) */
+    .action-button.create {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-color: transparent;
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        padding: 10px 24px;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+        .action-button.create:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+            color: #ffffff;
+        }
+
+/* Контейнер таблицы с прокруткой */
+.table-container {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+    min-height: 0;
+    scrollbar-width: thin;
+}
+
+    /* Стилизация скроллбара */
+    .table-container::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .table-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+/* Сама таблица */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Inter', sans-serif;
+}
+
+    /* Заголовки таблицы */
+    .data-table thead th {
+        background: #e5e9ef;
+        padding: 16px 16px;
+        text-align: left;
+        border-bottom: 2px solid #e2e8f0;
+        font-weight: 600;
+        font-size: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #475569;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    /* Ячейки таблицы */
+    .data-table td {
+        padding: 15px 16px;
+        text-align: left;
+        border-bottom: 1px solid #eef2f6;
+        color: #1e293b;
+        font-weight: 400;
+        font-size: 15px;
+    }
+
+    /* Кликабельные строки */
+    .data-table tbody tr {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .data-table tbody tr:hover {
+            background-color: #f0f2f5;
+        }
+
+        /* Чётные строки - лёгкая полосатость */
+        .data-table tbody tr:nth-child(even) {
+            background-color: #fafcff;
+        }
+
+            .data-table tbody tr:nth-child(even):hover {
+                background-color: #f0f2f5;
+            }
+
+/* Сообщение об отсутствии данных */
+.empty-message {
+    text-align: center;
+    padding: 60px 20px;
+    color: #64748b;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Колонка действий */
+.data-table .action-column {
+    width: 70px;
+    text-align: center;
+}
+
+.data-table .action-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Кнопка удаления - яркая и контрастная */
+.delete-button {
+    background-color: #ff2e2e;
+    border: 1px solid #fecaca;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    padding: 6px 12px;
+    border-radius: 8px;
+    line-height: 1;
+    color: #9c1212;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+    .delete-button:hover {
+        background-color: #dc2626;
+        color: white;
+        transform: scale(1.05);
+        border-color: #dc2626;
+    }
+
