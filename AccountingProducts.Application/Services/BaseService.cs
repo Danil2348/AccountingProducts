@@ -1,5 +1,6 @@
 ﻿using AccountingProducts.Application.Common.Interfaces.Repositories;
 using AccountingProducts.Application.Common.Interfaces.Services;
+using System.Linq.Expressions;
 
 namespace AccountingProducts.Application.Services;
 
@@ -15,9 +16,10 @@ public abstract class BaseService<T>(IBaseRepository<T> repository) : IBaseServi
         return repository.Delete(id);
     }
 
-    public virtual IEnumerable<T> GetAll()
+    public virtual IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null,
+        params Expression<Func<T, object>>[] includes)
     {
-        return repository.GetAll();
+        return repository.GetAll(filter, includes);
     }
 
     public virtual T GetById(Guid id)
