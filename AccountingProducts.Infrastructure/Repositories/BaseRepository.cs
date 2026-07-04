@@ -1,5 +1,6 @@
 ﻿using AccountingProducts.Application.Common.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace AccountingProducts.Infrastructure.Repositories;
 
@@ -28,9 +29,17 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
         return Save();
     }
 
-    public virtual IEnumerable<T> GetAll()
+    public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, params Expression<Func<T, object>>[] includes)
     {
-        return _dbSet.ToList();
+        var query = _dbSet.AsQueryable();
+
+        if (filter != null)
+            query = query.Where(filter);
+
+        foreach (var include in includes)
+            query = query.Include(include);
+
+        return query.ToList();
     }
 
     public virtual T GetById(Guid id)
