@@ -1,6 +1,8 @@
 ﻿using AccountingProducts.Application.Common.Interfaces.Services;
 using AccountingProducts.Domain.Models;
-using AccountingProducts.WEB.Contracts;
+using AccountingProducts.WEB.Contracts.Requests.Create;
+using AccountingProducts.WEB.Contracts.Requests.Update;
+using AccountingProducts.WEB.Contracts.Responses;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +10,6 @@ namespace AccountingProducts.WEB.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class ShopController(IShopService service, IMapper mapper) : 
-    BaseController<Shop, ShopDto>(service, mapper)
+public class ShopController(IShopService service, IMapper mapper) :
+    BaseController<Shop, ShopCreateDto, ShopUpdateDto, ShopResponseDto>(service, mapper)
 { }
