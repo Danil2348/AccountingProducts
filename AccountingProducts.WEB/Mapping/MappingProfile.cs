@@ -40,12 +40,12 @@ public class MappingProfile: Profile
 
         CreateMap<Shop, ShopResponseDto>();
         CreateMap<Category, CategoryResponseDto>()
-            .ForMember(dest => dest.ProductIds, opt => opt.MapFrom(src => src.Products.Select(p => p.Id).ToList()));
+            .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products.Select(p => p.Id).ToList()));
         CreateMap<Manufacturer, ManufacturerResponseDto>()
-            .ForMember(dest => dest.ProductIds, opt => opt.MapFrom(src => src.Products.Select(p => p.Id).ToList()));
+            .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products.Select(p => p.Id).ToList()));
         CreateMap<Product, ProductResponseDto>()
-            .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src => src.Categories.Select(p => p.Id).ToList()))
-            .ForMember(dest => dest.ManufacturerIds, opt => opt.MapFrom(src => src.Manufacturers.Select(p => p.Id).ToList()));
+            .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories.Select(p => p.Id).ToList()))
+            .ForMember(dest => dest.Manufacturers, opt => opt.MapFrom(src => src.Manufacturers.Select(p => p.Id).ToList()));
         CreateMap<Price, PriceResponseDto>();
 
         #endregion

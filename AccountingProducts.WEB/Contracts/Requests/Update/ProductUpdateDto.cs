@@ -9,8 +9,8 @@ public class ProductUpdateDto : BaseUpdateDto
     public string Name { get; set; }
 
     [Display(Name = "Категории")]
-    public List<Guid> CategoriyIds { get; set; }
+    public List<Guid> Categories { get; set; }
 
     [Display(Name = "Производели")]
-    public List<Guid> ManufacturerIds { get; set; }
+    public List<Guid> Manufacturers { get; set; }
 }

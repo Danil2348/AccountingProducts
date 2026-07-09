@@ -9,5 +9,5 @@ public class ManufacturerCreateDto : BaseCreateDto
     public string Name { get; set; }
 
     [Display(Name = "Продукты")]
-    public List<Guid> ProductIds { get; set; }
+    public List<Guid> Products { get; set; }
 }
