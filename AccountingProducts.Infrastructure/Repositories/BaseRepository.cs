@@ -42,11 +42,6 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
         return query.ToList();
     }
 
-    public virtual T GetById(Guid id)
-    {
-        return _dbSet.Find(id);
-    }
-
     public virtual bool Save()
     {
         return _appDbContext.SaveChanges() > 0;

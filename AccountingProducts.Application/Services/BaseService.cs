@@ -22,11 +22,6 @@ public abstract class BaseService<T>(IBaseRepository<T> repository) : IBaseServi
         return repository.GetAll(filter, includes);
     }
 
-    public virtual T GetById(Guid id)
-    {
-        return repository.GetById(id);
-    }
-
     public virtual T Update(T entity)
     {
         return repository.Update(entity);

@@ -1,4 +1,5 @@
 ﻿using AccountingProducts.Application.Common.Interfaces.Services;
+using AccountingProducts.Domain.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,7 +8,7 @@ namespace AccountingProducts.WEB.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public abstract class BaseController<TEntity, TDto>(IBaseService<TEntity> service, IMapper mapper) : ControllerBase
-    where TEntity : class
+    where TEntity : Base
     where TDto : class
 {
     [HttpGet]
@@ -35,7 +36,7 @@ public abstract class BaseController<TEntity, TDto>(IBaseService<TEntity> servic
     [HttpPut("update")]
     public virtual IActionResult Update(Guid id, [FromBody] TDto entityDto)
     {
-        var entity = service.GetById(id);
+        var entity = service.GetAll(e => e.Id == id).FirstOrDefault();
         mapper.Map(entityDto, entity);
         mapper.Map(service.Update(entity), entityDto);
         return Ok(entityDto);
