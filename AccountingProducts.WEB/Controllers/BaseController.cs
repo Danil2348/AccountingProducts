@@ -10,7 +10,7 @@ namespace AccountingProducts.WEB.Controllers;
 [ApiController]
 public abstract class BaseController<TEntity, TCreateDto, TUpdateDto, TResponseDto>
     (IBaseService<TEntity> service, IMapper mapper) : ControllerBase
-    where TEntity : class
+    where TEntity : Base
     where TCreateDto : class
     where TUpdateDto : class
     where TResponseDto : class
@@ -40,7 +40,7 @@ public abstract class BaseController<TEntity, TCreateDto, TUpdateDto, TResponseD
     [HttpPut("update")]
     public virtual IActionResult Update(Guid id, [FromBody] TUpdateDto entityDto)
     {
-        var entity = service.GetById(id);
+        var entity = service.GetAll(e => e.Id == id).FirstOrDefault();
         mapper.Map(entityDto, entity);
         var responseEntity = mapper.Map<TResponseDto>(service.Update(entity));
         return Ok(responseEntity);
