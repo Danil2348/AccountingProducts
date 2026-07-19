@@ -13,10 +13,8 @@ public class MappingProfile: Profile
         #region DTO в модели
 
         //Create
-        CreateMap<CategoryCreateDto, Category>()
-            .ForMember(dest => dest.Products, opt => opt.Ignore());
-        CreateMap<ManufacturerCreateDto, Manufacturer>()
-            .ForMember(dest => dest.Products, opt => opt.Ignore());
+        CreateMap<CategoryCreateDto, Category>();
+        CreateMap<ManufacturerCreateDto, Manufacturer>();
         CreateMap<ProductCreateDto, Product>()
             .ForMember(dest => dest.Categories, opt => opt.Ignore())
             .ForMember(dest => dest.Manufacturers, opt => opt.Ignore());
@@ -24,10 +22,8 @@ public class MappingProfile: Profile
         CreateMap<ShopCreateDto, Shop>();
 
         //Update
-        CreateMap<CategoryUpdateDto, Category>()
-            .ForMember(dest => dest.Products, opt => opt.Ignore());
-        CreateMap<ManufacturerUpdateDto, Manufacturer>()
-            .ForMember(dest => dest.Products, opt => opt.Ignore());
+        CreateMap<CategoryUpdateDto, Category>();
+        CreateMap<ManufacturerUpdateDto, Manufacturer>();
         CreateMap<ProductUpdateDto, Product>()
             .ForMember(dest => dest.Categories, opt => opt.Ignore())
             .ForMember(dest => dest.Manufacturers, opt => opt.Ignore());
@@ -39,10 +35,8 @@ public class MappingProfile: Profile
         #region модели в DTO
 
         CreateMap<Shop, ShopResponseDto>();
-        CreateMap<Category, CategoryResponseDto>()
-            .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products.Select(p => p.Id).ToList()));
-        CreateMap<Manufacturer, ManufacturerResponseDto>()
-            .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products.Select(p => p.Id).ToList()));
+        CreateMap<Category, CategoryResponseDto>();
+        CreateMap<Manufacturer, ManufacturerResponseDto>();
         CreateMap<Product, ProductResponseDto>()
             .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories.Select(p => p.Id).ToList()))
             .ForMember(dest => dest.Manufacturers, opt => opt.MapFrom(src => src.Manufacturers.Select(p => p.Id).ToList()));

@@ -7,7 +7,4 @@ public class CategoryCreateDto : BaseCreateDto
 {
     [Display(Name = "Название")]
     public string Name { get; set; }
-
-    [Display(Name = "Продукты")]
-    public List<Guid> Products { get; set; }
 }
