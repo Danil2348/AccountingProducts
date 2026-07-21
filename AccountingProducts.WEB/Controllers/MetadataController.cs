@@ -41,7 +41,8 @@ namespace AccountingProducts.WEB.Controllers
         {
             var assembly = typeof(MetadataController).Assembly;
             var types = assembly.GetTypes().Where(t => t.IsClass && t.IsPublic && !t.IsAbstract && 
-                                                        t.Namespace == "AccountingProducts.WEB.Contracts");
+                                                        t.Namespace.StartsWith("AccountingProducts.WEB.Contracts") &&
+                                                        !t.Name.StartsWith("Base"));
 
             var metadataCache = new JsonArray();
 
@@ -77,7 +78,8 @@ namespace AccountingProducts.WEB.Controllers
 
         private static string GetDataType(Type type)
         {
-            if (type.IsArray || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+            if (type.IsArray || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)))
                 return "array";
 
             var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
