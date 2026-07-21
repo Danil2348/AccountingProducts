@@ -1,7 +1,3 @@
-﻿export const DeleteButton = ({ onClick }) => {
-    return (
-        <button className="delete-button" onClick={onClick}>
-            🗑️
-        </button>
-    )
-}
+﻿export const DeleteButton = ({ onClick }) => (
+    <button className="delete-button" onClick={onClick}>🗑️</button>
+)

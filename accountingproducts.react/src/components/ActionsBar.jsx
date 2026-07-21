@@ -1,9 +1,10 @@
-﻿import { CreateButton } from './buttons'
-
+﻿// src/components/ActionsBar.jsx
 export const ActionsBar = ({ onCreate }) => {
     return (
         <div className="actions-bar">
-            <CreateButton onClick={onCreate} />
+            <button className="action-button create" onClick={onCreate}>
+                + Создать
+            </button>
         </div>
     )
 }
