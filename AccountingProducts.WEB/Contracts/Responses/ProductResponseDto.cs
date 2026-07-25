@@ -9,8 +9,8 @@ public class ProductResponseDto : BaseResponseDto
     public string Name { get; set; }
 
     [Display(Name = "Категории")]
-    public List<Guid> Categories { get; set; }
+    public List<CategoryResponseDto> Categories { get; set; }
 
     [Display(Name = "Производели")]
-    public List<Guid> Manufacturers { get; set; }
+    public List<ManufacturerResponseDto> Manufacturers { get; set; }
 }

@@ -38,8 +38,8 @@ public class MappingProfile: Profile
         CreateMap<Category, CategoryResponseDto>();
         CreateMap<Manufacturer, ManufacturerResponseDto>();
         CreateMap<Product, ProductResponseDto>()
-            .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories.Select(p => p.Id).ToList()))
-            .ForMember(dest => dest.Manufacturers, opt => opt.MapFrom(src => src.Manufacturers.Select(p => p.Id).ToList()));
+            .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories))
+            .ForMember(dest => dest.Manufacturers, opt => opt.MapFrom(src => src.Manufacturers));
         CreateMap<Price, PriceResponseDto>();
 
         #endregion
