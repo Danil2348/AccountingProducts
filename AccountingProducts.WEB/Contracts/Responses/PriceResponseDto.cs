@@ -12,14 +12,14 @@ public class PriceResponseDto
     public decimal OldPrice { get; set; }
 
     [Display(Name = "Продукт")]
-    public ProductResponseDto ProductId { get; set; }
+    public ProductResponseDto Product { get; set; }
 
     [Display(Name = "Категория")]
-    public CategoryResponseDto CategoryId { get; set; }
+    public CategoryResponseDto Category { get; set; }
 
     [Display(Name = "Производитель")]
-    public ManufacturerResponseDto ManufacturerId { get; set; }
+    public ManufacturerResponseDto Manufacturer { get; set; }
 
     [Display(Name = "Магазин")]
-    public ShopResponseDto ShopId { get; set; }
+    public ShopResponseDto Shop { get; set; }
 }
