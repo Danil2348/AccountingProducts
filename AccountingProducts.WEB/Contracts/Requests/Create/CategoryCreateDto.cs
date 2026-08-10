@@ -1,8 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AccountingProducts.Domain.Models;
+using AccountingProducts.WEB.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace AccountingProducts.WEB.Contracts.Requests.Create;
 
 [Display(Name = "Категория")]
+[DataSource(typeof(Category))]
 public class CategoryCreateDto : BaseCreateDto
 {
     [Display(Name = "Название")]
