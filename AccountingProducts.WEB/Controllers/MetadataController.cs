@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AccountingProducts.WEB.Attributes;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using System.Reflection.Metadata;
 using System.Text.Json.Nodes;
 
 namespace AccountingProducts.WEB.Controllers
@@ -10,20 +10,6 @@ namespace AccountingProducts.WEB.Controllers
     [ApiController]
     public class MetadataController() : ControllerBase
     {
-        private static readonly Dictionary<Type, string> _typeMap = new()
-        {
-            [typeof(string)] = "string",
-            [typeof(int)] = "integer",
-            [typeof(long)] = "integer",
-            [typeof(decimal)] = "decimal",
-            [typeof(double)] = "decimal",
-            [typeof(float)] = "decimal",
-            [typeof(DateTime)] = "datetime",
-            [typeof(DateTimeOffset)] = "datetime",
-            [typeof(bool)] = "boolean",
-            [typeof(Guid)] = "guid",
-        };
-
         private static readonly JsonArray _metadataCache;
 
         static MetadataController()
@@ -40,7 +26,7 @@ namespace AccountingProducts.WEB.Controllers
         private static JsonArray GetEntityTypesFromAssembly()
         {
             var assembly = typeof(MetadataController).Assembly;
-            var types = assembly.GetTypes().Where(t => t.IsClass && t.IsPublic && !t.IsAbstract && 
+            var types = assembly.GetTypes().Where(t => t.IsClass && t.IsPublic && !t.IsAbstract &&
                                                         t.Namespace.StartsWith("AccountingProducts.WEB.Contracts") &&
                                                         !t.Name.StartsWith("Base"));
 
@@ -51,7 +37,8 @@ namespace AccountingProducts.WEB.Controllers
                 var jsonEntity = new JsonObject()
                 {
                     ["entityName"] = type.GetCustomAttribute<DisplayAttribute>()?.Name ?? type.Name,
-                    ["typeName"] = type.Name
+                    ["typeName"] = type.Name,
+                    ["source"] = type.GetCustomAttribute<DataSourceAttribute>()?.ModelType.Name ?? null
                 };
 
                 var jsonProperties = new JsonArray();
@@ -63,7 +50,8 @@ namespace AccountingProducts.WEB.Controllers
                     {
                         ["name"] = property.Name,
                         ["label"] = property.GetCustomAttribute<DisplayAttribute>()?.Name ?? property.Name,
-                        ["datatype"] = GetDataType(property.PropertyType)
+                        ["datatype"] = property.PropertyType.Name,
+                        ["source"] = property.GetCustomAttribute<DataSourceAttribute>()?.ModelType.Name ?? null
                     };
 
                     jsonProperties.Add(jsonProperty);
@@ -74,23 +62,6 @@ namespace AccountingProducts.WEB.Controllers
             }
 
             return metadataCache;
-        }
-
-        private static string GetDataType(Type type)
-        {
-            if (type.IsArray || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)))
-                return "array";
-
-            var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
-
-            if (_typeMap.TryGetValue(underlyingType, out var dataType))
-                return dataType;
-
-            if (underlyingType.IsEnum)
-                return "enum";
-
-            return "object";
         }
     }
 }
