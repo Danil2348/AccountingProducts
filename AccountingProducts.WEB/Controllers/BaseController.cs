@@ -37,7 +37,7 @@ public abstract class BaseController<TEntity, TCreateDto, TUpdateDto, TResponseD
         return Ok(responseEntity);
     }
 
-    [HttpPut("update")]
+    [HttpPut("update/{id}")]
     public virtual IActionResult Update(Guid id, [FromBody] TUpdateDto entityDto)
     {
         var entity = service.GetAll(e => e.Id == id).FirstOrDefault();
