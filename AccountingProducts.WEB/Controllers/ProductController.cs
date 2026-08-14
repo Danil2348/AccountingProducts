@@ -35,7 +35,7 @@ public class ProductController(IProductService service, ICategoryService categor
         return Ok(responseEntity);
     }
 
-    [HttpPut("update")]
+    [HttpPut("update/{id}")]
     public override IActionResult Update(Guid id, [FromBody] ProductUpdateDto updateEntity)
     {
         var entity = service.GetAll(e => e.Id == id).FirstOrDefault();

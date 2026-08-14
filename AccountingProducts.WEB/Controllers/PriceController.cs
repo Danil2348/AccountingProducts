@@ -25,18 +25,4 @@ public class PriceController(IPriceService service, IMapper mapper) :
         var entitiesDto = mapper.Map<List<PriceResponseDto>>(entities);
         return Ok(entitiesDto);
     }
-
-    [HttpPut("update")]
-    public virtual IActionResult Update(Guid productId, Guid categoryId, Guid manufactureId, Guid shopId, 
-        [FromBody] PriceUpdateDto entityDto)
-    {
-        var entity = service.GetAll(e => 
-            e.ProductId == productId &&
-            e.CategoryId == categoryId &&
-            e.ManufacturerId == manufactureId &&
-            e.ShopId == shopId).FirstOrDefault();
-        mapper.Map(entityDto, entity);
-        var responseEntity = mapper.Map<PriceResponseDto>(service.Update(entity));
-        return Ok(responseEntity);
-    }
 }
