@@ -6,7 +6,7 @@ namespace AccountingProducts.WEB.Contracts.Responses;
 
 [Display(Name = "Цена")]
 [DataSource(typeof(Price))]
-public class PriceResponseDto
+public class PriceResponseDto : BaseResponseDto
 {
     [Display(Name = "Текущая цена")]
     public decimal CurrentPrice { get; set; }
