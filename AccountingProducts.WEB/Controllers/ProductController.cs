@@ -38,7 +38,10 @@ public class ProductController(IProductService service, ICategoryService categor
     [HttpPut("update/{id}")]
     public override IActionResult Update(Guid id, [FromBody] ProductUpdateDto updateEntity)
     {
-        var entity = service.GetAll(e => e.Id == id).FirstOrDefault();
+        var entity = service.GetAll(
+            e => e.Id == id,
+            e => e.Categories,
+            e => e.Manufacturers).FirstOrDefault();
         mapper.Map(updateEntity, entity);
         entity.Categories = FillLinks(updateEntity.Categories, categoryService);
         entity.Manufacturers = FillLinks(updateEntity.Manufacturers, manufacturerService);
