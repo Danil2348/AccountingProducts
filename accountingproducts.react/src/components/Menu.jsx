@@ -8,11 +8,11 @@ export const Menu = ({ items, activeItem, onItemClick }) => {
         <div className="menu-container">
             {items.map((item) => (
                 <button
-                    key={item}
-                    className={`menu-button ${activeItem === item ? 'active' : ''}`}
-                    onClick={() => onItemClick(item)}
+                    key={item.entityName}
+                    className={`menu-button ${activeItem === item.entityName ? 'active' : ''}`}
+                    onClick={() => onItemClick(item.entityName, item.typeName)}
                 >
-                    {item}
+                    {item.entityName}
                 </button>
             ))}
         </div>

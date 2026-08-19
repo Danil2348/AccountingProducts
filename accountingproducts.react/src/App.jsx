@@ -9,6 +9,7 @@ import './App.css'
 
 function App() {
     const [activeMenu, setActiveMenu] = useState(null)
+    const [activeTypeName, setActiveTypeName] = useState(null)
     const [tableData, setTableData] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -17,23 +18,22 @@ function App() {
     const [editData, setEditData] = useState(null)
     const [metadata, setMetadata] = useState(null)
     const [metadataLoading, setMetadataLoading] = useState(true)
-    const [referenceData, setReferenceData] = useState({
-        products: [],
-        categories: [],
-        manufacturers: [],
-        shops: [],
-    })
+    const [referenceData, setReferenceData] = useState({})
+    const [dialogKey, setDialogKey] = useState('')
 
     // ============================================================
-    // 1. ЗАГРУЗКА МЕТАДАННЫХ
+    // ЗАГРУЗКА МЕТАДАННЫХ
     // ============================================================
     useEffect(() => {
         const loadMetadata = async () => {
             try {
                 const data = await api.getMetadata()
                 setMetadata(data)
-                if (data && data.length > 0) {
-                    setActiveMenu(data[0].entityName)
+
+                const firstEntity = data?.find(m => m.typeName?.endsWith('ResponseDto'))
+                if (firstEntity) {
+                    setActiveMenu(firstEntity.entityName)
+                    setActiveTypeName(firstEntity.typeName)
                 }
             } catch (err) {
                 console.error('Ошибка загрузки метаданных:', err)
@@ -45,76 +45,140 @@ function App() {
     }, [])
 
     // ============================================================
-    // 2. ЗАГРУЗКА СПРАВОЧНИКОВ
+    // ПОЛУЧЕНИЕ ИСТОЧНИКОВ ДЛЯ СУЩНОСТИ
     // ============================================================
-    useEffect(() => {
-        const loadReferences = async () => {
-            try {
-                const data = await api.getReferenceData()
-                setReferenceData(data)
-            } catch (err) {
-                console.error('Ошибка загрузки справочников:', err)
+    const getSourcesForEntity = (entityName) => {
+        if (!metadata) return []
+        const entity = metadata.find(m => m.entityName === entityName)
+        if (!entity) return []
+
+        const sources = new Set()
+        entity.fields?.forEach(field => {
+            if (field.source) {
+                sources.add(field.source)
             }
-        }
-        loadReferences()
-    }, [])
+        })
+        return Array.from(sources)
+    }
 
     // ============================================================
-    // 3. ЗАГРУЗКА ДАННЫХ ДЛЯ ТАБЛИЦЫ
+    // ЗАГРУЗКА ДАННЫХ ДЛЯ ВЫПАДАЮЩИХ СПИСКОВ (только нужные)
+    // ============================================================
+    const refreshReferenceData = async (entityName) => {
+        const sources = getSourcesForEntity(entityName)
+        if (sources.length === 0) return
+
+        const refs = {}
+        await Promise.all(
+            sources.map(async (source) => {
+                try {
+                    const data = await api.getReferenceDataForSource(source)
+                    refs[source] = data
+                } catch (err) {
+                    console.warn(`Не удалось загрузить источник ${source}:`, err)
+                    refs[source] = []
+                }
+            })
+        )
+        setReferenceData(prev => ({ ...prev, ...refs }))
+    }
+
+    // ============================================================
+    // ЗАГРУЗКА ДАННЫХ ДЛЯ ТАБЛИЦЫ
+    // ============================================================
+    const loadTableData = async (typeName) => {
+        setLoading(true)
+        setError(null)
+        try {
+            const data = await api.getEntities(typeName)
+            setTableData(data)
+        } catch (err) {
+            console.error('Ошибка загрузки:', err)
+            setError('Не удалось загрузить данные')
+            setTableData([])
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    // ============================================================
+    // ЗАГРУЗКА ПРИ СМЕНЕ МЕНЮ
     // ============================================================
     useEffect(() => {
-        if (!activeMenu) return
+        if (!activeTypeName || !activeMenu) return
 
         let isMounted = true
-        const loadData = async () => {
+        const loadAll = async () => {
             if (!isMounted) return
-            setLoading(true)
-            setError(null)
-            try {
-                // ✅ ДИНАМИЧЕСКИЙ ВЫЗОВ
-                const data = await api.getEntities(activeMenu)
-                if (isMounted) setTableData(data)
-            } catch (err) {
-                if (isMounted) {
-                    console.error('Ошибка загрузки:', err)
-                    setError('Не удалось загрузить данные')
-                    setTableData([])
-                }
-            } finally {
-                if (isMounted) setLoading(false)
+            await loadTableData(activeTypeName)
+            if (isMounted) {
+                await refreshReferenceData(activeMenu)
             }
         }
-        loadData()
+        loadAll()
         return () => { isMounted = false }
-    }, [activeMenu])
+    }, [activeTypeName, activeMenu])
 
     // ============================================================
-    // 4. ОБРАБОТЧИКИ
+    // ФИЛЬТРАЦИЯ
     // ============================================================
+    const menuItems = metadata
+        ?.filter(m => m.typeName?.endsWith('ResponseDto'))
+        .map(m => ({ entityName: m.entityName, typeName: m.typeName })) || []
+
+    const responseSchema = metadata
+        ?.find(m => m.typeName === activeTypeName && m.typeName?.endsWith('ResponseDto'))
+
+    const createSchema = metadata
+        ?.find(m => m.entityName === activeMenu && m.typeName?.endsWith('CreateDto'))
+
+    const updateSchema = metadata
+        ?.find(m => m.entityName === activeMenu && m.typeName?.endsWith('UpdateDto'))
+
+    const currentSchema = isEditMode ? updateSchema : createSchema
+    const entityList = menuItems.map(m => m.entityName)
+
+    // ============================================================
+    // ОБРАБОТЧИКИ
+    // ============================================================
+    const handleMenuClick = (entityName, typeName) => {
+        setActiveMenu(entityName)
+        setActiveTypeName(typeName)
+    }
+
     const handleCreate = () => {
         setIsEditMode(false)
         setEditData(null)
+        setDialogKey('create_' + Date.now())
         setIsDialogOpen(true)
     }
 
     const handleEdit = (item) => {
         setIsEditMode(true)
         setEditData(item)
+        setDialogKey('edit_' + Date.now())
         setIsDialogOpen(true)
     }
 
-    const handleSave = async (entity, data) => {
-        // ✅ ДИНАМИЧЕСКИЙ ВЫЗОВ
-        await api.createEntity(entity, data)
-        const newData = await api.getEntities(entity)
-        setTableData(newData)
+    const handleSave = async (entityName, data) => {
+        const createType = metadata?.find(m => m.entityName === entityName && m.typeName?.endsWith('CreateDto'))
+        await api.createEntity(createType?.typeName, data)
+        await loadTableData(activeTypeName)
+        await refreshReferenceData(activeMenu)
     }
 
-    const handleUpdate = async (entity, data) => {
-        // ✅ ДИНАМИЧЕСКИЙ ВЫЗОВ
-        await api.updateEntity(entity, data)
-        const newData = await api.getEntities(entity)
-        setTableData(newData)
+    const handleUpdate = async (entityName, id, data) => {
+        console.log('🔄 handleUpdate:', { entityName, id, data })
+
+        const updateType = metadata?.find(m => m.entityName === entityName && m.typeName?.endsWith('UpdateDto'))
+        if (!updateType) {
+            console.error('❌ Не найден UpdateDto для', entityName)
+            return
+        }
+
+        await api.updateEntity(updateType.typeName, id, data)
+        await loadTableData(activeTypeName)
+        await refreshReferenceData(activeMenu)
     }
 
     const handleDelete = (id, name) => {
@@ -129,16 +193,13 @@ function App() {
         return <div className="loading">Загрузка метаданных...</div>
     }
 
-    const menuItems = metadata ? metadata.map(m => m.entityName) : []
-    const currentSchema = metadata?.find(m => m.entityName === activeMenu)
-
     return (
         <div className="app-container">
             <h1 className="page-title">Учет продуктов в магазине</h1>
             <Menu
                 items={menuItems}
                 activeItem={activeMenu}
-                onItemClick={setActiveMenu}
+                onItemClick={handleMenuClick}
             />
             <div className="table-wrapper">
                 <ActionsBar onCreate={handleCreate} />
@@ -148,12 +209,16 @@ function App() {
                     error={error}
                     onRowClick={handleRowClick}
                     onDelete={handleDelete}
-                    schema={currentSchema}
+                    schema={responseSchema}
                 />
             </div>
             <CreateDialog
+                key={dialogKey}
                 isOpen={isDialogOpen}
-                onClose={() => setIsDialogOpen(false)}
+                onClose={() => {
+                    setIsDialogOpen(false)
+                    setDialogKey('')
+                }}
                 onSave={handleSave}
                 onUpdate={handleUpdate}
                 activeMenu={activeMenu}
@@ -161,6 +226,7 @@ function App() {
                 editData={editData}
                 isEditMode={isEditMode}
                 schema={currentSchema}
+                entityList={entityList}
             />
         </div>
     )

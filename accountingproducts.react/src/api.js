@@ -1,9 +1,6 @@
 ﻿// src/api.js
 const API_BASE = '/api'
 
-// ============================================================
-// БАЗОВЫЙ HTTP КЛИЕНТ
-// ============================================================
 const request = (url, options = {}) =>
     fetch(url, {
         ...options,
@@ -13,46 +10,40 @@ const request = (url, options = {}) =>
         return res.json()
     })
 
-// ============================================================
-// ДИНАМИЧЕСКИЙ API (по имени сущности)
-// ============================================================
+const getControllerName = (typeName) => {
+    if (!typeName) return ''
+    return typeName
+        .replace('ResponseDto', '')
+        .replace('CreateDto', '')
+        .replace('UpdateDto', '')
+}
+
 export const api = {
-    // Метаданные
     getMetadata: () => request(`${API_BASE}/metadata`),
 
-    // ============================================================
-    // УНИВЕРСАЛЬНЫЕ МЕТОДЫ (по имени сущности)
-    // ============================================================
-    getEntities: (entityName) =>
-        request(`${API_BASE}/${entityName}`),
+    getEntities: (typeName) =>
+        request(`${API_BASE}/${getControllerName(typeName)}`),
 
-    createEntity: (entityName, data) =>
-        request(`${API_BASE}/${entityName}/create`, {
+    createEntity: (typeName, data) =>
+        request(`${API_BASE}/${getControllerName(typeName)}/create`, {
             method: 'POST',
             body: JSON.stringify(data),
         }),
 
-    updateEntity: (entityName, data) =>
-        request(`${API_BASE}/${entityName}/update/${data.id}`, {
+    updateEntity: (typeName, id, data) => {
+        const controller = getControllerName(typeName);
+        const url = `${API_BASE}/${controller}/update/${id}`;
+        return request(url, {
             method: 'PUT',
             body: JSON.stringify(data),
-        }),
+        });
+    },
 
-    deleteEntity: (entityName, id) =>
-        request(`${API_BASE}/${entityName}/delete/${id}`, {
+    deleteEntity: (typeName, id) =>
+        request(`${API_BASE}/${getControllerName(typeName)}/delete/${id}`, {
             method: 'DELETE',
         }),
 
-    // ============================================================
-    // СПРАВОЧНИКИ (для выпадающих списков)
-    // ============================================================
-    getReferenceData: async () => {
-        const [products, categories, manufacturers, shops] = await Promise.all([
-            api.getEntities('Product'),
-            api.getEntities('Category'),
-            api.getEntities('Manufacturer'),
-            api.getEntities('Shop'),
-        ])
-        return { products, categories, manufacturers, shops }
-    },
+    getReferenceDataForSource: (source) =>
+        request(`${API_BASE}/${source}`),
 }
