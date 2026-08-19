@@ -181,8 +181,28 @@ function App() {
         await refreshReferenceData(activeMenu)
     }
 
-    const handleDelete = (id, name) => {
-        alert(`Удаление: ${name} (ID: ${id})`)
+    const handleDelete = async (id, name) => {
+        // ✅ Подтверждение удаления
+        if (!window.confirm(`Удалить "${name}"?`)) {
+            return
+        }
+
+        try {
+            // ✅ Отправляем DELETE-запрос
+            await api.deleteEntity(activeTypeName, id)
+
+            // ✅ Обновляем таблицу
+            await loadTableData(activeTypeName)
+
+            // ✅ Обновляем справочники (если удалили сущность, используемую в выпадающих списках)
+            await refreshReferenceData(activeMenu)
+
+            // ✅ Показываем сообщение об успехе (опционально)
+            // alert('Запись удалена')
+        } catch (err) {
+            console.error('Ошибка удаления:', err)
+            alert('Не удалось удалить запись')
+        }
     }
 
     const handleRowClick = (item) => {

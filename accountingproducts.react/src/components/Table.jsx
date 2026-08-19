@@ -142,7 +142,7 @@ export const Table = ({
                                 <DeleteButton
                                     onClick={(e) => {
                                         e.stopPropagation()
-                                        onDelete(item.id, item.name || item.id)
+                                        onDelete(item.id, item.name || item.id)  // ← передаём id и имя
                                     }}
                                 />
                             </td>
