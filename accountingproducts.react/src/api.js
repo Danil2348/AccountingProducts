@@ -1,8 +1,7 @@
-﻿// src/api.js
-const API_BASE = '/api'
+﻿const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 const request = (url, options = {}) =>
-    fetch(url, {
+    fetch(`${API_BASE}${url}`, {
         ...options,
         headers: { 'Content-Type': 'application/json', ...options.headers },
     }).then(res => {
@@ -19,31 +18,28 @@ const getControllerName = (typeName) => {
 }
 
 export const api = {
-    getMetadata: () => request(`${API_BASE}/metadata`),
+    getMetadata: () => request('/metadata'),
 
     getEntities: (typeName) =>
-        request(`${API_BASE}/${getControllerName(typeName)}`),
+        request(`/${getControllerName(typeName)}`),
 
     createEntity: (typeName, data) =>
-        request(`${API_BASE}/${getControllerName(typeName)}/create`, {
+        request(`/${getControllerName(typeName)}/create`, {
             method: 'POST',
             body: JSON.stringify(data),
         }),
 
-    updateEntity: (typeName, id, data) => {
-        const controller = getControllerName(typeName);
-        const url = `${API_BASE}/${controller}/update/${id}`;
-        return request(url, {
+    updateEntity: (typeName, id, data) =>
+        request(`/${getControllerName(typeName)}/update/${id}`, {
             method: 'PUT',
             body: JSON.stringify(data),
-        });
-    },
+        }),
 
     deleteEntity: (typeName, id) =>
-        request(`${API_BASE}/${getControllerName(typeName)}/delete/${id}`, {
+        request(`/${getControllerName(typeName)}/delete/${id}`, {
             method: 'DELETE',
         }),
 
     getReferenceDataForSource: (source) =>
-        request(`${API_BASE}/${source}`),
+        request(`/${source}`),
 }

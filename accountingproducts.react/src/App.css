@@ -1,9 +1,9 @@
-/* src/App.css */
+п»ї/* src/App.css */
 
-/* Подключаем хороший шрифт */
+/* РџРѕРґРєР»СЋС‡Р°РµРј С…РѕСЂРѕС€РёР№ С€СЂРёС„С‚ */
 @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
 
-/* Сброс стилей и запрет прокрутки страницы */
+/* РЎР±СЂРѕСЃ СЃС‚РёР»РµР№ Рё Р·Р°РїСЂРµС‚ РїСЂРѕРєСЂСѓС‚РєРё СЃС‚СЂР°РЅРёС†С‹ */
 * {
     margin: 0;
     padding: 0;
@@ -19,7 +19,7 @@ html, body {
     background-size: 30px 30px;
 }
 
-/* Основной контейнер */
+/* РћСЃРЅРѕРІРЅРѕР№ РєРѕРЅС‚РµР№РЅРµСЂ */
 .app-container {
     display: flex;
     flex-direction: column;
@@ -33,7 +33,7 @@ html, body {
     background: transparent;
 }
 
-/* Заголовок */
+/* Р—Р°РіРѕР»РѕРІРѕРє */
 .page-title {
     font-size: 36px;
     font-weight: 700;
@@ -49,7 +49,7 @@ html, body {
     text-align: center;
 }
 
-/* Меню */
+/* РњРµРЅСЋ */
 .menu-container {
     display: flex;
     justify-content: center;
@@ -93,7 +93,7 @@ html, body {
             transform: translateY(-2px);
         }
 
-/* Обёртка таблицы */
+/* РћР±С‘СЂС‚РєР° С‚Р°Р±Р»РёС†С‹ */
 .table-wrapper {
     flex: 1;
     display: flex;
@@ -106,7 +106,7 @@ html, body {
     border: 1px solid #eef2f6;
 }
 
-/* Плашка действий */
+/* РџР»Р°С€РєР° РґРµР№СЃС‚РІРёР№ */
 .actions-bar {
     display: flex;
     justify-content: flex-start;
@@ -159,7 +159,7 @@ html, body {
             color: #ffffff;
         }
 
-/* Таблица */
+/* РўР°Р±Р»РёС†Р° */
 .table-container {
     flex: 1;
     overflow-x: auto;
@@ -242,7 +242,7 @@ html, body {
     font-family: 'Inter', sans-serif;
 }
 
-/* Колонка действий */
+/* РљРѕР»РѕРЅРєР° РґРµР№СЃС‚РІРёР№ */
 .data-table .action-column {
     width: 70px;
     text-align: center;
@@ -253,7 +253,7 @@ html, body {
     vertical-align: middle;
 }
 
-/* Кнопка удаления в таблице */
+/* РљРЅРѕРїРєР° СѓРґР°Р»РµРЅРёСЏ РІ С‚Р°Р±Р»РёС†Рµ */
 .delete-button {
     background-color: #ff2e2e;
     border: 1px solid #fecaca;
@@ -276,7 +276,7 @@ html, body {
         border-color: #dc2626;
     }
 
-/* ===== ДИАЛОГ ===== */
+/* ===== Р”РРђР›РћР“ ===== */
 .dialog-overlay {
     position: fixed;
     top: 0;
@@ -445,7 +445,7 @@ html, body {
 }
 
 /* ============================================================
-   СПИСКИ СВЯЗЕЙ (RelationList)
+   РЎРџРРЎРљР РЎР’РЇР—Р•Р™ (RelationList)
    ============================================================ */
 
 .relation-section {
@@ -621,7 +621,7 @@ html, body {
     font-size: 14px;
 }
 
-/* ===== АДАПТИВНОСТЬ ===== */
+/* ===== РђР”РђРџРўРР’РќРћРЎРўР¬ ===== */
 @media (max-width: 768px) {
     .app-container {
         padding: 12px 16px;
