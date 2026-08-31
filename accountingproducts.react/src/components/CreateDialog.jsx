@@ -12,9 +12,13 @@ export const CreateDialog = ({
     referenceData,
     editData,
     isEditMode,
-    schema,
+    allSchemas = [],
     entityList,
+    onLoadReferenceData,  // ← новый пропс для загрузки связей
 }) => {
+    // ============================================================
+    // ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
+    // ============================================================
     const getInitialData = (schema) => {
         const initial = {}
         if (!schema?.fields) return initial
@@ -32,10 +36,6 @@ export const CreateDialog = ({
         return initial
     }
 
-    const [selectedEntity, setSelectedEntity] = useState(activeMenu || '')
-    const [formData, setFormData] = useState({})
-    const [loading, setLoading] = useState(false)
-
     const normalizeKeys = (data) => {
         if (!data) return {}
         const normalized = {}
@@ -46,20 +46,112 @@ export const CreateDialog = ({
         return normalized
     }
 
+    const getActualKey = (data, fieldName) => {
+        if (data[fieldName] !== undefined) return fieldName
+        const lowerKey = fieldName.toLowerCase()
+        if (data[lowerKey] !== undefined) return lowerKey
+        const upperKey = fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
+        if (data[upperKey] !== undefined) return upperKey
+        return fieldName
+    }
+
+    // ============================================================
+    // ПОЛУЧЕНИЕ СХЕМЫ ПО СУЩНОСТИ И РЕЖИМУ
+    // ============================================================
+    const getSchemaForEntity = (entity, mode) => {
+        const suffix = mode === 'edit' ? 'UpdateDto' : 'CreateDto'
+        return allSchemas.find(s =>
+            s.entityName === entity &&
+            s.typeName?.endsWith(suffix)
+        ) || null
+    }
+
+    // ============================================================
+    // СОСТОЯНИЕ
+    // ============================================================
+    const [selectedEntity, setSelectedEntity] = useState(activeMenu || '')
+    const [formData, setFormData] = useState({})
+    const [loading, setLoading] = useState(false)
+    const [isLoadingRefs, setIsLoadingRefs] = useState(false)
+
+    // ============================================================
+    // ЗАГРУЗКА СВЯЗЕЙ ПРИ СМЕНЕ СУЩНОСТИ
+    // ============================================================
+    const loadReferencesForEntity = async (entity) => {
+        if (!onLoadReferenceData) return
+        setIsLoadingRefs(true)
+        try {
+            await onLoadReferenceData(entity)
+        } catch (err) {
+            console.warn('Ошибка загрузки связей:', err)
+        } finally {
+            setIsLoadingRefs(false)
+        }
+    }
+
+    // ============================================================
+    // СИНХРОНИЗАЦИЯ ФОРМЫ ПРИ ОТКРЫТИИ
+    // ============================================================
     useEffect(() => {
         if (!isOpen) return
 
+        const entity = activeMenu || ''
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setSelectedEntity(entity)
+
+        // Загружаем данные для связей текущей сущности
+        loadReferencesForEntity(entity)
+
         if (isEditMode && editData) {
+            const updateSchema = getSchemaForEntity(entity, 'edit')
             const normalizedData = normalizeKeys(editData)
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setFormData(normalizedData)
-            setSelectedEntity(activeMenu || '')
+
+            if (updateSchema) {
+                setFormData(normalizedData)
+            } else {
+                const responseSchema = allSchemas.find(s =>
+                    s.entityName === entity &&
+                    s.typeName?.endsWith('ResponseDto')
+                )
+                if (responseSchema) {
+                    const filteredData = {}
+                    responseSchema.fields?.forEach(field => {
+                        if (field.name in normalizedData) {
+                            filteredData[field.name] = normalizedData[field.name]
+                        }
+                    })
+                    setFormData(filteredData)
+                } else {
+                    setFormData(normalizedData)
+                }
+            }
         } else {
-            const emptyData = getInitialData(schema)
+            const createSchema = getSchemaForEntity(entity, 'create')
+            const emptyData = getInitialData(createSchema)
             setFormData(emptyData)
-            setSelectedEntity(activeMenu || '')
         }
-    }, [isOpen, isEditMode, editData, schema, activeMenu])
+    }, [isOpen, isEditMode, editData, activeMenu, allSchemas])
+
+    // ============================================================
+    // СМЕНА СУЩНОСТИ (только при создании)
+    // ============================================================
+    const handleEntityChange = async (entity) => {
+        if (isEditMode) {
+            alert('Редактирование: смена сущности недоступна')
+            return
+        }
+
+        setSelectedEntity(entity)
+
+        // Загружаем данные для связей новой сущности
+        await loadReferencesForEntity(entity)
+
+        const createSchema = getSchemaForEntity(entity, 'create')
+        if (createSchema) {
+            const newData = getInitialData(createSchema)
+            setFormData(newData)
+        }
+    }
 
     // ============================================================
     // УПРАВЛЕНИЕ СВЯЗЯМИ
@@ -78,7 +170,8 @@ export const CreateDialog = ({
     const addRelationItem = (fieldName, itemId) => {
         if (!itemId) return
 
-        const field = schema?.fields?.find(f => f.name === fieldName)
+        const currentSchema = getSchemaForEntity(selectedEntity, isEditMode ? 'edit' : 'create')
+        const field = currentSchema?.fields?.find(f => f.name === fieldName)
         const refKey = field?.source || fieldName
         const refData = referenceData?.[refKey] || []
 
@@ -106,90 +199,58 @@ export const CreateDialog = ({
         })
     }
 
-    const getActualKey = (data, fieldName) => {
-        if (data[fieldName] !== undefined) return fieldName
-        const lowerKey = fieldName.toLowerCase()
-        if (data[lowerKey] !== undefined) return lowerKey
-        const upperKey = fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
-        if (data[upperKey] !== undefined) return upperKey
-        return fieldName
-    }
-
-    const handleEntityChange = (entity) => {
-        if (isEditMode) return
-        setSelectedEntity(entity)
-        const newData = getInitialData(schema)
-        setFormData(newData)
-    }
-
+    // ============================================================
+    // ОСТАЛЬНЫЕ МЕТОДЫ
+    // ============================================================
     const handleFieldChange = (name, value) => {
         setFormData(prev => ({ ...prev, [name]: value }))
     }
 
     // ============================================================
-    // ✅ ОТПРАВКА — С ЛОГАМИ
+    // ОТПРАВКА
     // ============================================================
     const handleSubmit = async () => {
         setLoading(true)
         try {
             const dataToSend = { ...formData }
 
-            // ============================================================
-            // 1. ПРЕОБРАЗОВАНИЕ ОБЪЕКТОВ → ID
-            // ============================================================
-            schema?.fields?.forEach(field => {
+            const currentSchema = getSchemaForEntity(selectedEntity, isEditMode ? 'edit' : 'create')
+
+            currentSchema?.fields?.forEach(field => {
+                const type = field.datatype || field.dataType
                 const value = dataToSend[field.name]
-                const type = mapDataType(field.datatype || field.dataType)
 
-                // ✅ Массив объектов → список GUID
-                if (type === 'array' && Array.isArray(value)) {
-                    if (value.length > 0 && value[0]?.id) {
-                        dataToSend[field.name] = value.map(item => item.id)
-                    } else {
-                        dataToSend[field.name] = value
-                            .map(item => item?.id || item)
-                            .filter(id => id && id !== '')
-                    }
+                if (type === 'array' && Array.isArray(value) && value.length > 0 && value[0]?.id) {
+                    const idFieldName = field.name + 'Ids'
+                    dataToSend[idFieldName] = value.map(item => item.id)
+                    delete dataToSend[field.name]
                 }
 
-                // ✅ Одиночный объект → GUID
                 if (type === 'object' && value && typeof value === 'object' && value.id) {
-                    dataToSend[field.name] = value.id
+                    const idFieldName = field.name + 'Id'
+                    dataToSend[idFieldName] = value.id
+                    delete dataToSend[field.name]
                 }
 
-                // ✅ Числовые поля
-                if (type === 'number' && value !== undefined && value !== null && value !== '') {
-                    dataToSend[field.name] = parseFloat(value)
+                if (type === 'Decimal' || type === 'Int32' || type === 'Int64') {
+                    if (value !== undefined && value !== null && value !== '') {
+                        dataToSend[field.name] = parseFloat(value)
+                    }
                 }
             })
 
-            // ============================================================
-            // 2. ФИЛЬТРАЦИЯ ДЛЯ ОБНОВЛЕНИЯ
-            // ============================================================
             if (isEditMode) {
-                const allowedFields = schema?.fields?.map(f => f.name) || []
+                const updateFields = currentSchema?.fields?.map(f => f.name) || []
                 Object.keys(dataToSend).forEach(key => {
-                    if (!allowedFields.includes(key) && key !== 'id') {
-                        console.warn(`⚠️ Удаляем лишнее поле: ${key}`)
+                    if (!updateFields.includes(key) && key !== 'id') {
                         delete dataToSend[key]
                     }
                 })
                 delete dataToSend.id
             }
 
-            // ============================================================
-            // 3. УДАЛЯЕМ ПУСТЫЕ GUID
-            // ============================================================
-            Object.keys(dataToSend).forEach(key => {
-                if (Array.isArray(dataToSend[key])) {
-                    dataToSend[key] = dataToSend[key]
-                        .filter(id => id && id !== '' && id !== '00000000-0000-0000-0000-000000000000')
-                }
-            })
+            console.log('📤 Отправляем данные:', dataToSend)
 
-            // ============================================================
-            // 4. ОТПРАВКА
-            // ============================================================
             if (isEditMode) {
                 const entityId = formData.id || editData?.id
                 if (!entityId) {
@@ -203,7 +264,7 @@ export const CreateDialog = ({
             }
             onClose()
         } catch (err) {
-            console.error('❌ Ошибка:', err)
+            console.error('Ошибка:', err)
             alert('Не удалось выполнить операцию: ' + err.message)
         } finally {
             setLoading(false)
@@ -212,8 +273,10 @@ export const CreateDialog = ({
 
     if (!isOpen) return null
 
+    const currentSchema = getSchemaForEntity(selectedEntity, isEditMode ? 'edit' : 'create')
+
     // ============================================================
-    // РЕНДЕРИНГ ПОЛЯ
+    // РЕНДЕРИНГ
     // ============================================================
     const renderField = (field) => {
         const fieldName = field.name
@@ -232,16 +295,12 @@ export const CreateDialog = ({
         const dataType = field.datatype || field.dataType
         const type = mapDataType(dataType)
 
-        // ============================================================
-        // 1. СПИСОК (array)
-        // ============================================================
         if (type === 'array') {
             let items = value
             if (!Array.isArray(items)) items = []
 
             const refKey = field.source || fieldName
             const allRefData = referenceData?.[refKey] || []
-
             const availableItems = allRefData.filter(
                 refItem => !items.some(i => i.id === refItem.id)
             )
@@ -259,13 +318,10 @@ export const CreateDialog = ({
             )
         }
 
-        // ============================================================
-        // 2. ССЫЛКА (source) — ВЫПАДАЮЩИЙ СПИСОК
-        // ============================================================
         if (field.source) {
             const refData = referenceData?.[field.source] || []
 
-            if (refData.length === 0) {
+            if (refData.length === 0 && !isLoadingRefs) {
                 return (
                     <input
                         type="text"
@@ -274,6 +330,14 @@ export const CreateDialog = ({
                         placeholder={`Нет данных для ${field.label}`}
                         disabled
                     />
+                )
+            }
+
+            if (isLoadingRefs) {
+                return (
+                    <select disabled>
+                        <option value="">Загрузка...</option>
+                    </select>
                 )
             }
 
@@ -297,9 +361,6 @@ export const CreateDialog = ({
             )
         }
 
-        // ============================================================
-        // 3. ЧЕКБОКС (boolean)
-        // ============================================================
         if (type === 'boolean') {
             return (
                 <input
@@ -310,9 +371,6 @@ export const CreateDialog = ({
             )
         }
 
-        // ============================================================
-        // 4. ЧИСЛО (number)
-        // ============================================================
         if (type === 'number') {
             return (
                 <input
@@ -326,9 +384,6 @@ export const CreateDialog = ({
             )
         }
 
-        // ============================================================
-        // 5. ДАТА (datetime)
-        // ============================================================
         if (type === 'datetime') {
             return (
                 <input
@@ -341,9 +396,6 @@ export const CreateDialog = ({
             )
         }
 
-        // ============================================================
-        // 6. ТЕКСТ (по умолчанию)
-        // ============================================================
         return (
             <input
                 type="text"
@@ -370,7 +422,7 @@ export const CreateDialog = ({
                         <select
                             value={selectedEntity}
                             onChange={(e) => handleEntityChange(e.target.value)}
-                            disabled={isEditMode}
+                            disabled={isEditMode || isLoadingRefs}
                             style={isEditMode ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
                         >
                             {entityList?.map(entity => (
@@ -380,9 +432,12 @@ export const CreateDialog = ({
                         {isEditMode && (
                             <div className="field-hint">Редактирование: смена сущности недоступна</div>
                         )}
+                        {isLoadingRefs && (
+                            <div className="field-hint">Загрузка данных для связей...</div>
+                        )}
                     </div>
 
-                    {schema?.fields?.map((field) => (
+                    {currentSchema?.fields?.map((field) => (
                         <div key={field.name} className="dialog-field">
                             <label>
                                 {field.label}
@@ -398,7 +453,7 @@ export const CreateDialog = ({
 
                 <div className="dialog-footer">
                     <button className="dialog-cancel" onClick={onClose}>Отмена</button>
-                    <button className="dialog-save" onClick={handleSubmit} disabled={loading}>
+                    <button className="dialog-save" onClick={handleSubmit} disabled={loading || isLoadingRefs}>
                         {isEditMode ? (loading ? 'Сохранение...' : 'Сохранить') : (loading ? 'Создание...' : 'Создать')}
                     </button>
                 </div>
