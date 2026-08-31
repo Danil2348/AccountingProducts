@@ -62,9 +62,11 @@ function App() {
     }
 
     // ============================================================
-    // ЗАГРУЗКА ДАННЫХ ДЛЯ ВЫПАДАЮЩИХ СПИСКОВ (только нужные)
+    // ЗАГРУЗКА ДАННЫХ ДЛЯ ВЫПАДАЮЩИХ СПИСКОВ (ДЛЯ КОНКРЕТНОЙ СУЩНОСТИ)
     // ============================================================
-    const refreshReferenceData = async (entityName) => {
+    const loadReferenceDataForEntity = async (entityName) => {
+        if (!entityName) return
+
         const sources = getSourcesForEntity(entityName)
         if (sources.length === 0) return
 
@@ -112,7 +114,7 @@ function App() {
             if (!isMounted) return
             await loadTableData(activeTypeName)
             if (isMounted) {
-                await refreshReferenceData(activeMenu)
+                await loadReferenceDataForEntity(activeMenu)
             }
         }
         loadAll()
@@ -129,13 +131,6 @@ function App() {
     const responseSchema = metadata
         ?.find(m => m.typeName === activeTypeName && m.typeName?.endsWith('ResponseDto'))
 
-    const createSchema = metadata
-        ?.find(m => m.entityName === activeMenu && m.typeName?.endsWith('CreateDto'))
-
-    const updateSchema = metadata
-        ?.find(m => m.entityName === activeMenu && m.typeName?.endsWith('UpdateDto'))
-
-    const currentSchema = isEditMode ? updateSchema : createSchema
     const entityList = menuItems.map(m => m.entityName)
 
     // ============================================================
@@ -164,41 +159,25 @@ function App() {
         const createType = metadata?.find(m => m.entityName === entityName && m.typeName?.endsWith('CreateDto'))
         await api.createEntity(createType?.typeName, data)
         await loadTableData(activeTypeName)
-        await refreshReferenceData(activeMenu)
+        await loadReferenceDataForEntity(activeMenu)
     }
 
     const handleUpdate = async (entityName, id, data) => {
-        console.log('🔄 handleUpdate:', { entityName, id, data })
-
         const updateType = metadata?.find(m => m.entityName === entityName && m.typeName?.endsWith('UpdateDto'))
-        if (!updateType) {
-            console.error('❌ Не найден UpdateDto для', entityName)
-            return
-        }
-
-        await api.updateEntity(updateType.typeName, id, data)
+        await api.updateEntity(updateType?.typeName, id, data)
         await loadTableData(activeTypeName)
-        await refreshReferenceData(activeMenu)
+        await loadReferenceDataForEntity(activeMenu)
     }
 
     const handleDelete = async (id, name) => {
-        // ✅ Подтверждение удаления
-        if (!window.confirm(`Удалить "${name}"?`)) {
+        if (!window.confirm(`Удалить "${name || id}"?`)) {
             return
         }
 
         try {
-            // ✅ Отправляем DELETE-запрос
             await api.deleteEntity(activeTypeName, id)
-
-            // ✅ Обновляем таблицу
             await loadTableData(activeTypeName)
-
-            // ✅ Обновляем справочники (если удалили сущность, используемую в выпадающих списках)
-            await refreshReferenceData(activeMenu)
-
-            // ✅ Показываем сообщение об успехе (опционально)
-            // alert('Запись удалена')
+            await loadReferenceDataForEntity(activeMenu)
         } catch (err) {
             console.error('Ошибка удаления:', err)
             alert('Не удалось удалить запись')
@@ -245,8 +224,9 @@ function App() {
                 referenceData={referenceData}
                 editData={editData}
                 isEditMode={isEditMode}
-                schema={currentSchema}
+                allSchemas={metadata}
                 entityList={entityList}
+                onLoadReferenceData={loadReferenceDataForEntity}
             />
         </div>
     )
